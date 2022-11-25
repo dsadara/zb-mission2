@@ -13,8 +13,8 @@ import javax.persistence.*;
 // Entitiy는 일종의 테이블 설정 클래스
 @Entity
 public class Account {
-    @Id
-    @GeneratedValue // id를 pk로 지정
+    @Id // id를 pk로 지정
+    @GeneratedValue // pk 자동 생성 기능
     private Long id;
 
     private String accountNumber;
