@@ -33,6 +33,10 @@ public class AccountService {
 
     @Transactional
     public Account getAccount(Long id) {
+        if (id < 0) {
+            throw new RuntimeException("Minus");
+        }
+
         return accountRepository.findById(id).get();    // optional을 반환해서 .get()을 붙여줌
     }
 }

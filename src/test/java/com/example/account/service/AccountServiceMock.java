@@ -6,15 +6,19 @@ import com.example.account.repository.AccountRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 
 @ExtendWith(MockitoExtension.class)
 class AccountServiceMock {
@@ -36,14 +40,41 @@ class AccountServiceMock {
                         .accountStatus(AccountStatus.UNREGISTERED)
                         .accountNumber("65789")
                         .build()));
+        // long type captor 박스 만듦
+        ArgumentCaptor<Long> captor = ArgumentCaptor.forClass(Long.class);
 
         //when
         Account account = accountService.getAccount(4555L);
 
         //then
+        // 계좌 호출할 떄는 findById가 한 번 호출되는지 검증
+        verify(accountRepository, times(1)).findById(captor.capture()); // captor의 capture를 가로체서 verify
+        // save가 한번도 호출되지 않는지 검증
+        verify(accountRepository, times(0)).save(any());
+
+        // captor에서 캐치된 결과값 검증
+        assertEquals(4555L, captor.getValue());
+        assertNotEquals(45515L, captor.getValue());
+
+
+
         assertEquals("65789", account.getAccountNumber());
         assertEquals(AccountStatus.UNREGISTERED, account.getAccountStatus());
     }
+
+    @Test
+    @DisplayName("계좌 조회 실패 - 음수로 조회")
+    void testFailedToSearchAccount() {
+        //given
+        //when
+        // getAccount(음수) 동작을 할 때 RuntimeException이 발생하면 그 예외를 exception에 넣기
+        RuntimeException exception = assertThrows(RuntimeException.class,
+                () -> accountService.getAccount(-10L));
+
+        //then
+        assertEquals("Minus", exception.getMessage());
+    }
+
 
 
     // Junit을 사용하면 같은 테스트시 에러가 났었는데
