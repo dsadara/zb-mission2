@@ -31,5 +31,14 @@ public class CreateAccount {
         private Long userId;
         private String accountNumber;
         private LocalDateTime registeredAt;
+
+        public static Response from(AccountDto accountDto) {
+            // accountDto에서 Response를 생성해주는 static 메소드
+            return Response.builder()
+                    .userId(accountDto.getUserId())
+                    .accountNumber(accountDto.getAccountNumber())
+                    .registeredAt(accountDto.getRegisteredAt())
+                    .build();
+        }
     }
 }
