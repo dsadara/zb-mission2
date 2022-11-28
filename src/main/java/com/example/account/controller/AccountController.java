@@ -23,11 +23,13 @@ public class AccountController {
     public CreateAccount.Response createAccount(
             @RequestBody @Valid CreateAccount.Request request
     ) {
-        AccountDto accountDto = accountService.createAccount(
-                request.getUserId(),
-                request.getIntialBalance()
+        // 받아온 accountDto를 Response로 변경해서 반환
+        return CreateAccount.Response.from(
+                accountService.createAccount(
+                        request.getUserId(),
+                        request.getIntialBalance()
+                )
         );
-        return CreateAccount.Response.from(accountDto);
     }
 
     @GetMapping("/get-lock")
