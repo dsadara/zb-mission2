@@ -28,7 +28,7 @@ public class AccountUser {
 
     // 모든 테이블에 갖고 있으면 좋은 메타 정보
     @CreatedDate
-    private LocalDateTime createAt;
+    private LocalDateTime createdAt;
     @LastModifiedDate
     private LocalDateTime updatedAt;
 }
