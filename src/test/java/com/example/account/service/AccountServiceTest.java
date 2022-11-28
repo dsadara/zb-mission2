@@ -1,7 +1,7 @@
 package com.example.account.service;
 
 import com.example.account.domain.Account;
-import com.example.account.domain.AccountStatus;
+import com.example.account.type.AccountStatus;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -21,7 +21,7 @@ class AccountServiceTest {
     @BeforeEach
     void init() {
         // 테스트 전에 무조건 동작시키는 것
-        accountService.createAccount();
+        accountService.createAccount(1L, 100L);
     }
 
     @Test
