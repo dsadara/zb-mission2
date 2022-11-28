@@ -57,7 +57,6 @@ class AccountServiceMock {
         assertNotEquals(45515L, captor.getValue());
 
 
-
         assertEquals("65789", account.getAccountNumber());
         assertEquals(AccountStatus.UNREGISTERED, account.getAccountStatus());
     }
@@ -74,7 +73,6 @@ class AccountServiceMock {
         //then
         assertEquals("Minus", exception.getMessage());
     }
-
 
 
     // Junit을 사용하면 같은 테스트시 에러가 났었는데

@@ -13,7 +13,7 @@ import javax.transaction.Transactional;
 public class AccountService {
     // AccountRepository를 사용하는 서비스
 
-//    @Autowired를 쓰면 AccountService 테스트시 AccountRepository 의존성을 담아주기 어렵다
+    //    @Autowired를 쓰면 AccountService 테스트시 AccountRepository 의존성을 담아주기 어렵다
     private final AccountRepository accountRepository; // @RequiredArgsConstructor가 알아서 AccountRepository 의존성 주입을 함
 
     @Transactional
