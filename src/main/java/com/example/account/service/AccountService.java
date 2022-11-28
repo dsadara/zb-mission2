@@ -34,7 +34,7 @@ public class AccountService {
      * 계좌를 저장하고, 그 정보를 넘김
      */
     @Transactional
-    public Account createAccount(Long userId, Long initialBalance) {
+    public AccountDto createAccount(Long userId, Long initialBalance) {
         // 해당 userId가 없으면 런타임 에러를 던져줌
         AccountUser accountUser = accountUserRepository.findById(userId)
                 .orElseThrow(() -> new AccountException(ErrorCode.USER_NOT_FOUND));
@@ -46,19 +46,17 @@ public class AccountService {
                 // 계좌가 없으면 아래 숫자로 계좌번호 설정
                 .orElse("1000000000");
 
-
         // 계좌 생성
-        return accountRepository.save(
-                Account.builder()
-                        .accountUser(accountUser)
-                        .accountStatus(IN_USE) // AccountStatus static import함
-                        .accountNumber(newAccountNumber)
-                        .balance(initialBalance)
-                        .registeredAt(LocalDateTime.now())
-                        .build()
+        return AccountDto.fromEntity(
+                // Account 반환
+                accountRepository.save(Account.builder()
+                                .accountUser(accountUser)
+                                .accountStatus(IN_USE) // AccountStatus static import함
+                                .accountNumber(newAccountNumber)
+                                .balance(initialBalance)
+                                .registeredAt(LocalDateTime.now())
+                                .build())
         );
-
-
     }
 
     @Transactional
