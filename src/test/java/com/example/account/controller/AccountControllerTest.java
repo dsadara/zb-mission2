@@ -48,8 +48,10 @@ class AccountControllerTest {
         // 특정 URL에 대한 테스트?
         mockMvc.perform(get("/account/876"))
                 .andDo(print()) // get시 응답값을 화면에 표시
-                .andExpect(jsonPath("$.accountNumber").value("3456"))
-                .andExpect(jsonPath("$.accountStatus").value("IN_USE"))
+                .andExpect(jsonPath("$.accountNumber")
+                        .value("3456"))
+                .andExpect(jsonPath("$.accountStatus")
+                        .value("IN_USE"))
                 .andExpect(status().isOk());
     }
 

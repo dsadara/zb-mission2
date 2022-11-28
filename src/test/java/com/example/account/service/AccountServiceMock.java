@@ -23,7 +23,8 @@ import static org.mockito.Mockito.verify;
 @ExtendWith(MockitoExtension.class)
 class AccountServiceMock {
 
-    // 우리가 테스트하려는 AccountService가 의존하고 있는 accountRepository를 가짜로 만들어 줌
+    // 우리가 테스트하려는 AccountService가
+    // 의존하고 있는 accountRepository를 가짜로 만들어 줌
     @Mock
     private AccountRepository accountRepository;
 
@@ -48,7 +49,8 @@ class AccountServiceMock {
 
         //then
         // 계좌 호출할 떄는 findById가 한 번 호출되는지 검증
-        verify(accountRepository, times(1)).findById(captor.capture()); // captor의 capture를 가로체서 verify
+        verify(accountRepository, times(1))
+                .findById(captor.capture()); // captor의 capture를 가로체서 verify
         // save가 한번도 호출되지 않는지 검증
         verify(accountRepository, times(0)).save(any());
 
@@ -66,7 +68,8 @@ class AccountServiceMock {
     void testFailedToSearchAccount() {
         //given
         //when
-        // getAccount(음수) 동작을 할 때 RuntimeException이 발생하면 그 예외를 exception에 넣기
+        // getAccount(음수) 동작을 할 때
+        // RuntimeException이 발생하면 그 예외를 exception에 넣기
         RuntimeException exception = assertThrows(RuntimeException.class,
                 () -> accountService.getAccount(-10L));
 

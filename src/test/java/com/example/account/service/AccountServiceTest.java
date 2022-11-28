@@ -10,10 +10,13 @@ import org.springframework.boot.test.context.SpringBootTest;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-@SpringBootTest // SpringBootTest가 AccountService 내부의 의존성을 빈으로 테스트 컨테이너에 띄어 놓음
+// SpringBootTest가 AccountService 내부의 의존성을 빈으로 테스트 컨테이너에 띄어 놓음
+@SpringBootTest
 class AccountServiceTest {
+
+    // Autowired로 accountService 내의 의존성을 다 주입해줌
     @Autowired
-    private AccountService accountService;  // accountService 내의 의존성을 다 주입해줌
+    private AccountService accountService;
 
     @BeforeEach
     void init() {
@@ -24,7 +27,8 @@ class AccountServiceTest {
     @Test
     @DisplayName("Test 이름 변경")
     void testGetAccount() {
-        Account account = accountService.getAccount(2L); // 순차 생성이므로 1번 아이디로 해서 가져오면 됨
+        // 순차 생성이므로 1번 아이디로 해서 가져오면 됨
+        Account account = accountService.getAccount(2L);
 
         assertEquals("40000", account.getAccountNumber());
         assertEquals(AccountStatus.IN_USE, account.getAccountStatus());
@@ -32,7 +36,7 @@ class AccountServiceTest {
 
     @Test
     void testGetAccount2() {
-        Account account = accountService.getAccount(2L); // 순차 생성이므로 1번 아이디로 해서 가져오면 됨
+        Account account = accountService.getAccount(2L);
 
         assertEquals("40000", account.getAccountNumber());
         assertEquals(AccountStatus.IN_USE, account.getAccountStatus());
