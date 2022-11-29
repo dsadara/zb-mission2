@@ -190,4 +190,114 @@ class AccountServiceTest {
     }
 
 
+    @Test
+    @DisplayName("해당 계좌 없음 - 계좌 해지 실패")
+    void deleteAccount_AccountNotFound() {
+        //given
+        AccountUser user = AccountUser.builder()
+                .id(12L)
+                .name("Pobi").build();
+
+        // findById()에 대한 모킹
+        given(accountUserRepository.findById(anyLong()))
+                .willReturn(Optional.of(user));
+        // findFirstByOrderByIdDesc()에 대한 모킹
+        given(accountRepository.findByAccountNumber(anyString()))
+                .willReturn(Optional.empty());
+        ArgumentCaptor<Account> captor = ArgumentCaptor.forClass(Account.class);
+
+        //when
+        AccountException exception = assertThrows(AccountException.class,
+                () -> accountService.deleteAccount(1L, "1234567890"));
+
+        //then
+        assertEquals(ErrorCode.ACCOUNT_NOT_FOUND, exception.getErrorCode());
+    }
+
+    @Test
+    @DisplayName("계좌 소유주 다름")
+    void deleteAccountFailed_UserUnMatch() {
+        //given
+        AccountUser pobi = AccountUser.builder()
+                .id(12L)
+                .name("Pobi").build();
+
+        AccountUser harry = AccountUser.builder()
+                .id(13L)
+                .name("Harry").build();
+
+        // findById()에 대한 모킹
+        given(accountUserRepository.findById(anyLong()))
+                // 우리가 찾을 유저는 pobi
+                .willReturn(Optional.of(pobi));
+        // findFirstByOrderByIdDesc()에 대한 모킹
+        given(accountRepository.findByAccountNumber(anyString()))
+                .willReturn(Optional.of(Account.builder()
+                        // but 우리가 찾은 계좌는 harry의 것
+                        .accountUser(harry)
+                        .balance(0L)
+                        .accountNumber("1000000012").build()));
+
+        //when
+        AccountException exception = assertThrows(AccountException.class,
+                () -> accountService.deleteAccount(1L, "1234567890"));
+
+        //then
+        assertEquals(ErrorCode.USER_ACCOUNT_UN_MATCH, exception.getErrorCode());
+    }
+
+    @Test
+    @DisplayName("해지 계좌는 잔액이 없어야 한다.")
+    void deleteAccountFailed_balanceNotEmpty() {
+        //given
+        AccountUser pobi = AccountUser.builder()
+                .id(12L)
+                .name("Pobi").build();
+
+        // findById()에 대한 모킹
+        given(accountUserRepository.findById(anyLong()))
+                .willReturn(Optional.of(pobi));
+        // findFirstByOrderByIdDesc()에 대한 모킹
+        given(accountRepository.findByAccountNumber(anyString()))
+                .willReturn(Optional.of(Account.builder()
+                        .accountUser(pobi)
+                        .balance(100L)
+                        .accountNumber("1000000012").build()));
+
+        //when
+        AccountException exception = assertThrows(AccountException.class,
+                () -> accountService.deleteAccount(1L, "1234567890"));
+
+        //then
+        assertEquals(ErrorCode.BALANCE_NOT_EMPTY, exception.getErrorCode());
+    }
+
+    @Test
+    @DisplayName("해지 계좌는 해지할 수 없다")
+    void deleteAccountFailed_alreadyUnregistered() {
+        //given
+        AccountUser pobi = AccountUser.builder()
+                .id(12L)
+                .name("Pobi").build();
+
+        // findById()에 대한 모킹
+        given(accountUserRepository.findById(anyLong()))
+                .willReturn(Optional.of(pobi));
+        // findFirstByOrderByIdDesc()에 대한 모킹
+        given(accountRepository.findByAccountNumber(anyString()))
+                .willReturn(Optional.of(Account.builder()
+                        .accountUser(pobi)
+                        .accountStatus(AccountStatus.UNREGISTERED)
+                        .balance(100L)
+                        .accountNumber("1000000012").build()));
+
+        //when
+        AccountException exception = assertThrows(AccountException.class,
+                () -> accountService.deleteAccount(1L, "1234567890"));
+
+        //then
+        assertEquals(ErrorCode.ACCOUNT_ALREADY_UNREGISTERED, exception.getErrorCode());
+    }
+
+
 }
