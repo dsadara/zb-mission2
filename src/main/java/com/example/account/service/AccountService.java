@@ -37,9 +37,7 @@ public class AccountService {
         AccountUser accountUser = accountUserRepository.findById(userId)
                 .orElseThrow(() -> new AccountException(ErrorCode.USER_NOT_FOUND));
 
-        if (accountRepository.countByAccountUser(accountUser) == 10) {
-            throw new AccountException(ErrorCode.MAX_ACCOUNT_PER_USER_10);
-        }
+        validateCreateAccount(accountUser);
 
         // 가장 최근에 생성된 계좌정보를 가져옴, Optional을 사용하여 간결하게 함
         String newAccountNumber = accountRepository.findFirstByOrderByIdDesc()
@@ -59,6 +57,12 @@ public class AccountService {
                                 .registeredAt(LocalDateTime.now())
                                 .build())
         );
+    }
+
+    private void validateCreateAccount(AccountUser accountUser) {
+        if (accountRepository.countByAccountUser(accountUser) == 10) {
+            throw new AccountException(ErrorCode.MAX_ACCOUNT_PER_USER_10);
+        }
     }
 
     @Transactional
