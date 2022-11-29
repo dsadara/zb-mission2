@@ -3,8 +3,11 @@ package com.example.account.service;
 import com.example.account.domain.Account;
 import com.example.account.domain.AccountUser;
 import com.example.account.dto.AccountDto;
+import com.example.account.exception.AccountException;
 import com.example.account.repository.AccountRepository;
 import com.example.account.repository.AccountUserRepository;
+import com.example.account.type.ErrorCode;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -15,6 +18,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.BDDMockito.given;
@@ -99,6 +103,22 @@ class AccountServiceTest {
         verify(accountRepository, times(1)).save(captor.capture());
         assertEquals(15L, accountDto.getUserId());
         assertEquals("1000000000", captor.getValue().getAccountNumber());
+    }
+
+    // 찾으려는 유저가 없는 경우
+    @Test
+    @DisplayName("해당 유저 없음 - 계좌 생성 실패")
+    void createAccount_UserNotFound() {
+        //given
+        // 찾으려는 유저가 없는 경우
+        given(accountUserRepository.findById(anyLong()))
+                .willReturn(Optional.empty());
+
+        //when
+        AccountException exception = assertThrows(AccountException.class, () -> accountService.createAccount(1L, 1000L));
+
+        //then
+        assertEquals(ErrorCode.USER_NOT_FOUND, exception.getErrorCode());
     }
 
 }
