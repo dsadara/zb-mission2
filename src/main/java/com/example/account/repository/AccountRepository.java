@@ -14,4 +14,7 @@ public interface AccountRepository extends JpaRepository<Account, Long> {
 
     // 해당 accountUser가 소유하고 있는 계좌의 개수 반환
     Integer countByAccountUser(AccountUser accountuser);
+
+    // AccountNumber에 해당하는 Account를 검색
+    Optional<Account> findByAccountNumber(String AccountNumber);
 }
