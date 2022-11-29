@@ -1,45 +1,65 @@
 package com.example.account.service;
 
 import com.example.account.domain.Account;
-import com.example.account.type.AccountStatus;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
+import com.example.account.domain.AccountUser;
+import com.example.account.dto.AccountDto;
+import com.example.account.repository.AccountRepository;
+import com.example.account.repository.AccountUserRepository;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.BDDMockito.given;
 
-// SpringBootTest가 AccountService 내부의 의존성을 빈으로 테스트 컨테이너에 띄어 놓음
-@SpringBootTest
+
+@ExtendWith(MockitoExtension.class)
 class AccountServiceTest {
+    @Mock
+    private AccountRepository accountRepository;
 
-    // Autowired로 accountService 내의 의존성을 다 주입해줌
-    @Autowired
+    @Mock
+    private AccountUserRepository accountUserRepository;
+
+
+    // 두개의 Mock이 accountService에 들어감
+    @InjectMocks
     private AccountService accountService;
 
-    @BeforeEach
-    void init() {
-        // 테스트 전에 무조건 동작시키는 것
-        accountService.createAccount(1L, 100L);
-    }
-
     @Test
-    @DisplayName("Test 이름 변경")
-    void testGetAccount() {
-        // 순차 생성이므로 1번 아이디로 해서 가져오면 됨
-        Account account = accountService.getAccount(2L);
+    void createAccountSuccess() {
+        //given
+        AccountUser user = AccountUser.builder()
+                .id(12L)
+                .name("Pobi").build();
 
-        assertEquals("40000", account.getAccountNumber());
-        assertEquals(AccountStatus.IN_USE, account.getAccountStatus());
-    }
+        // findById()에 대한 모킹
+        given(accountUserRepository.findById(anyLong()))
+                .willReturn(Optional.of(user));
+        // findFirstByOrderByIdDesc()에 대한 모킹
+        given(accountRepository.findFirstByOrderByIdDesc())
+                .willReturn(Optional.of(Account.builder()
+                                .accountNumber("1000000012").build()));
+        // save()에 대한 모킹
+        given(accountRepository.save(any()))
+                .willReturn(Account.builder()
+                        .accountUser(user)
+                        .accountNumber("1000000015").build());
 
-    @Test
-    void testGetAccount2() {
-        Account account = accountService.getAccount(2L);
+        //when
+        // createAccount 파라미터로 뭘 넣든 then의 결과가 나옴
+        AccountDto accountDto = accountService.createAccount(1L, 1000L);
 
-        assertEquals("40000", account.getAccountNumber());
-        assertEquals(AccountStatus.IN_USE, account.getAccountStatus());
+        //then
+        assertEquals(12L, accountDto.getUserId());
+        assertEquals("1000000015", accountDto.getAccountNumber());
+
     }
 
 }
