@@ -6,16 +6,14 @@ import com.example.account.dto.AccountDto;
 import com.example.account.exception.AccountException;
 import com.example.account.repository.AccountRepository;
 import com.example.account.repository.AccountUserRepository;
-import com.example.account.type.AccountStatus;
 import com.example.account.type.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
-
 import java.time.LocalDateTime;
 
-import static com.example.account.type.AccountStatus.*;
+import static com.example.account.type.AccountStatus.IN_USE;
 
 @Service
 @RequiredArgsConstructor    // 생성자로 의존성 주입을 하기 위한 롬복
@@ -38,6 +36,10 @@ public class AccountService {
         // 해당 userId가 없으면 런타임 에러를 던져줌
         AccountUser accountUser = accountUserRepository.findById(userId)
                 .orElseThrow(() -> new AccountException(ErrorCode.USER_NOT_FOUND));
+
+        if (accountRepository.countByAccountUser(accountUser) == 10) {
+            throw new AccountException(ErrorCode.MAX_ACCOUNT_PER_USER_10);
+        }
 
         // 가장 최근에 생성된 계좌정보를 가져옴, Optional을 사용하여 간결하게 함
         String newAccountNumber = accountRepository.findFirstByOrderByIdDesc()
