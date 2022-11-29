@@ -67,4 +67,38 @@ class AccountServiceTest {
         assertEquals("1000000013", captor.getValue().getAccountNumber());
     }
 
+    // 유저가 가진 계좌가 없는 경우 테스트
+    @Test
+    void createFirstAccount() {
+        //given
+        AccountUser user = AccountUser.builder()
+                .id(15L)
+                .name("Pobi").build();
+
+        // findById()에 대한 모킹
+        given(accountUserRepository.findById(anyLong()))
+                .willReturn(Optional.of(user));
+        // findFirstByOrderByIdDesc()에 대한 모킹
+        // 아직 아무 계좌도 없는 경우
+        given(accountRepository.findFirstByOrderByIdDesc())
+                .willReturn(Optional.empty());
+        // save()에 대한 모킹
+        given(accountRepository.save(any()))
+                .willReturn(Account.builder()
+                        .accountUser(user)
+                        .accountNumber("1000000015").build());
+        // 실제로 응답한 계좌는 captor에 들어감
+        ArgumentCaptor<Account> captor = ArgumentCaptor.forClass(Account.class);
+
+
+        //when
+        // createAccount 파라미터로 뭘 넣든 then의 결과가 나옴
+        AccountDto accountDto = accountService.createAccount(1L, 1000L);
+
+        //then
+        verify(accountRepository, times(1)).save(captor.capture());
+        assertEquals(15L, accountDto.getUserId());
+        assertEquals("1000000000", captor.getValue().getAccountNumber());
+    }
+
 }
