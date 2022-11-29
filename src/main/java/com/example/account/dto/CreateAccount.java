@@ -19,7 +19,7 @@ public class CreateAccount {
         private Long userId;
 
         @NotNull
-        @Min(100)
+        @Min(0)
         private Long initialBalance;
     }
 
@@ -28,7 +28,7 @@ public class CreateAccount {
     @NoArgsConstructor
     @AllArgsConstructor
     @Builder
-public static class Response {
+    public static class Response {
         private Long userId;
         private String accountNumber;
         private LocalDateTime registeredAt;
