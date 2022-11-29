@@ -6,6 +6,7 @@ import com.example.account.dto.AccountDto;
 import com.example.account.exception.AccountException;
 import com.example.account.repository.AccountRepository;
 import com.example.account.repository.AccountUserRepository;
+import com.example.account.type.AccountStatus;
 import com.example.account.type.ErrorCode;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -19,8 +20,7 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -52,7 +52,7 @@ class AccountServiceTest {
         // findFirstByOrderByIdDesc()에 대한 모킹
         given(accountRepository.findFirstByOrderByIdDesc())
                 .willReturn(Optional.of(Account.builder()
-                                .accountNumber("1000000012").build()));
+                        .accountNumber("1000000012").build()));
         // save()에 대한 모킹
         given(accountRepository.save(any()))
                 .willReturn(Account.builder()
@@ -70,6 +70,36 @@ class AccountServiceTest {
         assertEquals(12L, accountDto.getUserId());
         assertEquals("1000000013", captor.getValue().getAccountNumber());
     }
+
+    @Test
+    void deleteAccountSuccess() {
+        //given
+        AccountUser user = AccountUser.builder()
+                .id(12L)
+                .name("Pobi").build();
+
+        // findById()에 대한 모킹
+        given(accountUserRepository.findById(anyLong()))
+                .willReturn(Optional.of(user));
+        // findFirstByOrderByIdDesc()에 대한 모킹
+        given(accountRepository.findByAccountNumber(anyString()))
+                .willReturn(Optional.of(Account.builder()
+                        .accountUser(user)
+                        .balance(0L)
+                        .accountNumber("1000000012").build()));
+        ArgumentCaptor<Account> captor = ArgumentCaptor.forClass(Account.class);
+
+        //when
+        // createAccount 파라미터로 뭘 넣든 then의 결과가 나옴
+        AccountDto accountDto = accountService.deleteAccount(1L, "1234567890");
+
+        //then
+        verify(accountRepository, times(1)).save(captor.capture());
+        assertEquals(12L, accountDto.getUserId());
+        assertEquals("1000000012", captor.getValue().getAccountNumber());
+        assertEquals(AccountStatus.UNREGISTERED, captor.getValue().getAccountStatus());
+    }
+
 
     // 유저가 가진 계좌가 없는 경우 테스트
     @Test

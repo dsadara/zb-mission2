@@ -91,6 +91,9 @@ public class AccountService {
         account.setAccountStatus(AccountStatus.UNREGISTERED);
         account.setUnregisteredAt(LocalDateTime.now());
 
+        // 없어도 account값이 업데이트 되지만 테스트를 위해 넣음
+        accountRepository.save(account);
+
         return AccountDto.fromEntity(account);
     }
 
