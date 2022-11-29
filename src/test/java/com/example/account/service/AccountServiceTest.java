@@ -7,6 +7,7 @@ import com.example.account.repository.AccountRepository;
 import com.example.account.repository.AccountUserRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -17,6 +18,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 
 
 @ExtendWith(MockitoExtension.class)
@@ -51,15 +54,17 @@ class AccountServiceTest {
                 .willReturn(Account.builder()
                         .accountUser(user)
                         .accountNumber("1000000015").build());
+        ArgumentCaptor<Account> captor = ArgumentCaptor.forClass(Account.class);
+
 
         //when
         // createAccount 파라미터로 뭘 넣든 then의 결과가 나옴
         AccountDto accountDto = accountService.createAccount(1L, 1000L);
 
         //then
+        verify(accountRepository, times(1)).save(captor.capture());
         assertEquals(12L, accountDto.getUserId());
-        assertEquals("1000000015", accountDto.getAccountNumber());
-
+        assertEquals("1000000013", captor.getValue().getAccountNumber());
     }
 
 }
