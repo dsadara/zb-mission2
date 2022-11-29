@@ -21,7 +21,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 @ExtendWith(MockitoExtension.class)
-class AccountServiceMock {
+class AccountServiceMockTest {
 
     // 우리가 테스트하려는 AccountService가
     // 의존하고 있는 accountRepository를 가짜로 만들어 줌
