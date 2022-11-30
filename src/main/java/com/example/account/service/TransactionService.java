@@ -10,6 +10,7 @@ import com.example.account.repository.AccountUserRepository;
 import com.example.account.repository.TransactionRepository;
 import com.example.account.type.AccountStatus;
 import com.example.account.type.ErrorCode;
+import com.example.account.type.TransactionResultType;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -19,6 +20,7 @@ import java.time.LocalDateTime;
 import java.util.Objects;
 import java.util.UUID;
 
+import static com.example.account.type.TransactionResultType.F;
 import static com.example.account.type.TransactionResultType.S;
 import static com.example.account.type.TransactionType.USE;
 
@@ -51,18 +53,7 @@ public class TransactionService {
         account.useBalance(amount);
 
         // transaction 생성 후 반환
-        return TransactionDto.fromEntity(transactionRepository.save(
-                Transaction.builder()
-                        .transactionType(USE)
-                        .transactionResultType(S)
-                        .account(account)
-                        .amount(amount)
-                        .balanceSnapshot(account.getBalance())
-                        // 고유한 transactionId를 만들기 위해 UUID 사용
-                        .transactionId(UUID.randomUUID().toString().replace("-", ""))
-                        .transactedAt(LocalDateTime.now())
-                        .build()
-        ));
+        return TransactionDto.fromEntity(saveAndGetTransaction(S, account, amount));
     }
 
     private void validateUseBalance(AccountUser user, Account account, Long amount) {
@@ -75,5 +66,31 @@ public class TransactionService {
         if (account.getBalance() < amount) {
             throw new AccountException(ErrorCode.AMOUNT_EXCEED_BALANCE);
         }
+    }
+
+    @Transactional
+    public void saveFailedUseTransaction(String accountNumber, Long amount) {
+        Account account  = accountRepository.findByAccountNumber(accountNumber)
+                .orElseThrow(() -> new AccountException(ErrorCode.ACCOUNT_NOT_FOUND));
+
+        saveAndGetTransaction(F, account, amount);
+    }
+
+    private Transaction saveAndGetTransaction(
+            TransactionResultType transactionResultType,
+            Account account,
+            Long amount) {
+        return transactionRepository.save(
+                Transaction.builder()
+                        .transactionType(USE)
+                        .transactionResultType(transactionResultType)
+                        .account(account)
+                        .amount(amount)
+                        .balanceSnapshot(account.getBalance())
+                        // 고유한 transactionId를 만들기 위해 UUID 사용
+                        .transactionId(UUID.randomUUID().toString().replace("-", ""))
+                        .transactedAt(LocalDateTime.now())
+                        .build()
+        );
     }
 }

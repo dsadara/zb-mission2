@@ -1,6 +1,7 @@
 package com.example.account.controller;
 
 import com.example.account.dto.UseBalance;
+import com.example.account.exception.AccountException;
 import com.example.account.service.TransactionService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -27,8 +28,19 @@ public class TransactionController {
     public UseBalance.Response useBalance(
             @Valid @RequestBody UseBalance.Request request
     ) {
-        return UseBalance.Response.from(
-                transactionService.useBalance(request.getUserId(),
-                        request.getAccountNumber(), request.getAmount()));
+        try {
+            return UseBalance.Response.from(
+                    transactionService.useBalance(request.getUserId(),
+                            request.getAccountNumber(), request.getAmount()));
+        } catch (AccountException e) {
+            log.error("Failed to use balacne. ");
+
+            transactionService.saveFailedUseTransaction(
+                    request.getAccountNumber(),
+                    request.getAmount()
+            );
+
+            throw e;
+        }
     }
 }
