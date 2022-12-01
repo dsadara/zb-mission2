@@ -4,9 +4,11 @@ import com.example.account.domain.Account;
 import com.example.account.dto.AccountDto;
 import com.example.account.dto.CreateAccount;
 import com.example.account.dto.DeleteAccount;
+import com.example.account.exception.AccountException;
 import com.example.account.service.AccountService;
 import com.example.account.service.RedisTestService;
 import com.example.account.type.AccountStatus;
+import com.example.account.type.ErrorCode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -148,5 +150,23 @@ class AccountControllerTest {
                 .andExpect(status().isOk());
     }
 
+    @Test
+    void failGetAccount() throws Exception {
+        //given
+        // 이 데이터로 모킹?
+        given(accountService.getAccount(anyLong()))
+                .willThrow(new AccountException(ErrorCode.ACCOUNT_NOT_FOUND));
+
+        //when
+        //then
+        // 특정 URL에 대한 테스트?
+        mockMvc.perform(get("/account/876"))
+                .andDo(print()) // get시 응답값을 화면에 표시
+                .andExpect(jsonPath("$.errorCode")
+                        .value("ACCOUNT_NOT_FOUND"))
+                .andExpect(jsonPath("$.errorMessage")
+                        .value("계좌가 없습니다."))
+                .andExpect(status().isOk());
+    }
 
 }
