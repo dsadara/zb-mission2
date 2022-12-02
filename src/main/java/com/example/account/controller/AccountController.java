@@ -1,6 +1,5 @@
 package com.example.account.controller;
 
-import com.example.account.domain.Account;
 import com.example.account.dto.AccountInfo;
 import com.example.account.dto.CreateAccount;
 import com.example.account.dto.DeleteAccount;
@@ -57,10 +56,4 @@ public class AccountController {
     }
 
 
-    @GetMapping("/account/{id}")
-    public Account getAccount(
-            @PathVariable Long id
-    ) {
-        return accountService.getAccount(id);
-    }
 }
