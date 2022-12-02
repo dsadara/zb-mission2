@@ -1,5 +1,6 @@
 package com.example.account.dto;
 
+import com.example.account.aop.AccountLockIdInterface;
 import com.example.account.type.TransactionResultType;
 import lombok.*;
 
@@ -17,7 +18,8 @@ public class UseBalance {
     @Getter
     @Setter
     @AllArgsConstructor
-    public static class Request {
+    public static class Request implements AccountLockIdInterface {
+        // 롬복이 알아서 AccountLockIdInterface의 getAccountNumber()을 구현해줌
         @NotNull
         @Min(1)     // 프로퍼티를 validation
         private Long userId;
@@ -47,7 +49,7 @@ public class UseBalance {
     @NoArgsConstructor
     @AllArgsConstructor
     @Builder
-    public static class Response {
+    public static class Response implements AccountLockIdInterface{
         private String accountNumber;
         private TransactionResultType transactionResult;
         private String transactionId;
