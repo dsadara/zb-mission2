@@ -69,6 +69,16 @@ public class AccountService {
     }
 
     @Transactional
+    public Account getAccount(Long id) {
+        if (id < 0) {
+            throw new RuntimeException("Minus");
+        }
+
+        // optional을 반환해서 .get()을 붙여줌
+        return accountRepository.findById(id).get();
+    }
+
+    @Transactional
     public AccountDto deleteAccount(Long userId, String accountNumber) {
         // id에 해당하는 accountUser가 없으면 예외 반환
         AccountUser accountUser = getAccountUser(userId);
